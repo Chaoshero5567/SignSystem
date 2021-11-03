@@ -1,0 +1,7 @@
+name: SignSystem
+version: '${project.version}'
+main: de.chaos.mc.signsystem.SignSystem
+api-version: 1.15
+prefix: BungeeSign
+authors: [ Chaoshero5567 ]
+description: A Bungeecord Sign System
