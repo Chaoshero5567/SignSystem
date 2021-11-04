@@ -12,7 +12,7 @@ public class MySQL {
         this.configHandler = configHandler;
     }
     public Connection connection;
-    public HashMap<String, SignObject> getSign = new HashMap<>();
+    public HashMap<Long, SignObject> getSign = new HashMap<>();
 
     public void connectSQL() {
         String host = configHandler.getSQLconfig.getHost();
@@ -56,6 +56,24 @@ public class MySQL {
             exception.printStackTrace();
         }
     }
+
+    public void writeSignIntoDatabase(String world, int x, int y, int z, String server, Boolean maintenance) {
+        try {
+            String qry = "INSERT INTO signs (WORLD, X, Y, Z, SERVER, MAINTENANCE) values (?, ?, ?, ?, ?, ?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(qry);
+            int it = 0;
+            preparedStatement.setString(++it, world);
+            preparedStatement.setInt(++it, x);
+            preparedStatement.setInt(++it, y);
+            preparedStatement.setInt(++it, z);
+            preparedStatement.setString(++it, server);
+            preparedStatement.setString(++it, String.valueOf(maintenance));
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
     public ResultSet getResult(String qry) {
         try {
             Statement selectStatement = connection.createStatement();
@@ -70,17 +88,18 @@ public class MySQL {
     public void getSigns() {
         try {
             Statement selectStatement = connection.createStatement();
-            ResultSet resultSet = selectStatement.executeQuery("SELECT WORLD,X,Y,Z,Server FROM signs WHERE WORLD <= 10");
+            ResultSet resultSet = selectStatement.executeQuery("SELECT ID,WORLD,X,Y,Z,Server,MAINTENANCE FROM signs WHERE WORLD <= 10");
             while (resultSet.next()) {
                 SignObject signObject = SignObject.builder()
-                        .world(resultSet.getString(1))
-                        .x(Integer.valueOf(resultSet.getString(2)))
-                        .y(Integer.valueOf(resultSet.getString(3)))
-                        .z(Integer.valueOf(resultSet.getString(4)))
-                        .Server(resultSet.getString(5))
-                        .maintenance(Boolean.parseBoolean(resultSet.getString(6)))
+                        .id(resultSet.getLong(1))
+                        .world(resultSet.getString(2))
+                        .x(Integer.valueOf(resultSet.getString(3)))
+                        .y(Integer.valueOf(resultSet.getString(4)))
+                        .z(Integer.valueOf(resultSet.getString(5)))
+                        .Server(resultSet.getString(6))
+                        .maintenance(Boolean.parseBoolean(resultSet.getString(7)))
                         .build();
-                getSign.put(resultSet.getString(5), signObject);
+                getSign.put(resultSet.getLong(1), signObject);
             }
             resultSet.close();
             selectStatement.close();

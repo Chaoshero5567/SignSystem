@@ -48,8 +48,7 @@ public class setSignCommand implements CommandExecutor {
                                     .maintenance(arg1)
                                     .build();
                             mySQL.getSign.put(arg0, signObject);
-                            mySQL.update("INSERT INTO signs (WORLD, X, Y, Z, SERVER, MAINTENANCE) values (" + signObject.getWorld() + ", " + signObject.getX() + ", "  + signObject.getY() + ", "  + signObject.getZ() + ", "  + signObject.getServer() + ", " + arg1 + ")");
-
+                            mySQL.writeSignIntoDatabase(signObject.getWorld(), signObject.getX(), signObject.getY(), signObject.getZ(), signObject.getServer(), signObject.maintenance);
                             player.sendMessage("Sign was created");
                             return true;
                         }
