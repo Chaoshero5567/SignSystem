@@ -2,6 +2,7 @@ package de.chaos.mc.signsystem;
 
 import de.chaos.mc.signsystem.commands.setSignCommand;
 import de.chaos.mc.signsystem.listeners.SignInteractListener;
+import de.chaos.mc.signsystem.utils.BungeeServerSender;
 import de.chaos.mc.signsystem.utils.UpdateSigns;
 import de.chaos.mc.signsystem.utils.config.ConfigHandler;
 import de.chaos.mc.signsystem.utils.config.sqlconfigs.SQLConfigHandler;
@@ -16,6 +17,7 @@ public final class SignSystem extends JavaPlugin {
     private ConfigHandler configHandler;
     private MySQL mySQL;
     private UpdateSigns updateSigns;
+    private BungeeServerSender bungeeServerSender;
 
 
     @Override
@@ -23,6 +25,7 @@ public final class SignSystem extends JavaPlugin {
 
         init(Bukkit.getPluginManager());
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", bungeeServerSender);
     }
 
     public void init(PluginManager pluginManager) {
@@ -35,7 +38,7 @@ public final class SignSystem extends JavaPlugin {
     }
 
     public void initListeners(PluginManager pluginManager) {
-        pluginManager.registerEvents(new SignInteractListener(), this);
+        pluginManager.registerEvents(new SignInteractListener(mySQL), this);
     }
 
     public void initCommands() {
@@ -48,6 +51,7 @@ public final class SignSystem extends JavaPlugin {
         configHandler = new ConfigHandler(sqlConfigHandler);
         mySQL = new MySQL(configHandler);
         updateSigns = new UpdateSigns(mySQL, this);
+        bungeeServerSender = new BungeeServerSender();
     }
 
     @Override

@@ -5,10 +5,13 @@ import de.chaos.mc.signsystem.utils.mysql.MySQL;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.sql.ResultSet;
 
 public class setSignCommand implements CommandExecutor {
     private final MySQL mySQL;
@@ -23,7 +26,7 @@ public class setSignCommand implements CommandExecutor {
             Player player = (Player) sender;
             Block block = player.getTargetBlock(null, 5);
             Location blockLocation = block.getLocation();
-            if (block.getType() == Material.ACACIA_WALL_SIGN || block.getType() != Material.SPRUCE_WALL_SIGN || block.getType() != Material.BIRCH_WALL_SIGN || block.getType() != Material.OAK_WALL_SIGN || block.getType() != Material.DARK_OAK_WALL_SIGN || block.getType() != Material.JUNGLE_WALL_SIGN) {
+            if (block.getState() instanceof Sign) {
                 String arg0 = args[0];
                 Boolean arg1 = Boolean.valueOf(args[1]);
                 if (args.length != 2) {
@@ -47,15 +50,15 @@ public class setSignCommand implements CommandExecutor {
                                     .Server(arg0)
                                     .maintenance(arg1)
                                     .build();
-                            mySQL.getSign.put(arg0, signObject);
                             mySQL.writeSignIntoDatabase(signObject.getWorld(), signObject.getX(), signObject.getY(), signObject.getZ(), signObject.getServer(), signObject.maintenance);
+                            mySQL.getSigns();
                             player.sendMessage("Sign was created");
                             return true;
                         }
                     }
                 }
             } else {
-                player.sendMessage("There is no wall sign");
+                player.sendMessage("There is no sign");
                 return false;
             }
         } else {

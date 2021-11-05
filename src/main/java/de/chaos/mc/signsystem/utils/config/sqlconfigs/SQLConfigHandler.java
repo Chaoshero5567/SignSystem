@@ -10,16 +10,14 @@ import java.io.*;
 public class SQLConfigHandler {
 
     private Gson gson = new Gson();
-    private final File sqlFile = new File("plugins//SignSystem//SQL.json");
+    private final File sqlFile = new File("plugins//SignSystem//SQLConfig.json");
 
     public void saveSQLConfig(String host, Long port, String user, String pw, String database) {
         SQLConfig sqlConfig = new SQLConfig(host, port, user, pw, database);
 
-
-
-        try (FileWriter fileWriter = new FileWriter(sqlFile)) {
+        try (FileWriter stringWriter = new FileWriter(sqlFile)) {
             if (!sqlFile.exists()) sqlFile.createNewFile();
-            fileWriter.write(gson.toJson(sqlConfig));
+            stringWriter.write(gson.toJson(sqlConfig));
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -29,13 +27,12 @@ public class SQLConfigHandler {
         if (!sqlFile.exists()) {
             saveSQLConfig(DefaultSQLValues.host, DefaultSQLValues.port, DefaultSQLValues.user, DefaultSQLValues.pw, DefaultSQLValues.database);
         }
-
         try {
             SQLConfig sqlConfig = gson.fromJson(new FileReader(sqlFile), SQLConfig.class);
             return sqlConfig;
         } catch (FileNotFoundException exception) {
             exception.printStackTrace();
-            return null;
+            return readSQLConfig();
         }
     }
 }

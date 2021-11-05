@@ -74,12 +74,12 @@ public class MySQL {
             exception.printStackTrace();
         }
     }
-    public ResultSet getResult(String qry) {
+    public String getResult(String qry) {
         try {
             Statement selectStatement = connection.createStatement();
             ResultSet resultSet = selectStatement.executeQuery(qry);
             resultSet.close();
-            return resultSet;
+            return resultSet.toString();
         } catch (SQLException exception) {
             exception.printStackTrace();
             return null;
