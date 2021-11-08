@@ -1,6 +1,6 @@
 package de.chaos.mc.signsystem.utils;
 
-import de.chaos.mc.signsystem.utils.mysql.MySQL;
+import de.chaos.mc.signsystem.utils.mysql.signs.SignObject;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -12,11 +12,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.HashMap;
 
 public class UpdateSigns {
-    MySQL mySQL;
     public HashMap<Long, SignObject> signs = new HashMap<>();
-    public UpdateSigns(MySQL mySQL, Plugin plugin) {
-        this.mySQL = mySQL;
-        this.signs = mySQL.getSign;
+    public UpdateSigns( Plugin plugin) {
         startUpdater(plugin);
     }
 
@@ -27,8 +24,7 @@ public class UpdateSigns {
             public void run() {
                 for (Long id : signs.keySet()) {
                     SignObject signObject = signs.get(id);
-                    World world = Bukkit.getWorld(signObject.getWorld());
-                    Block block = world.getBlockAt(signObject.x, signObject.y, signObject.z);
+                    Block block = signObject.getLocation().getBlock();
                     Sign sign = (Sign) block.getState();
                     sign.setLine(0, "---------------");
                     sign.setLine(1, signObject.getServer());

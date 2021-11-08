@@ -1,9 +1,8 @@
 package de.chaos.mc.signsystem.commands;
 
-import de.chaos.mc.signsystem.utils.SignObject;
-import de.chaos.mc.signsystem.utils.mysql.MySQL;
+import de.chaos.mc.signsystem.utils.mysql.signs.SignInterface;
+import de.chaos.mc.signsystem.utils.mysql.signs.SignObject;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
@@ -11,13 +10,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.sql.ResultSet;
-
 public class setSignCommand implements CommandExecutor {
-    private final MySQL mySQL;
+    private final SignInterface signInterface;
 
-    public setSignCommand(MySQL mySQL) {
-        this.mySQL = mySQL;
+    public setSignCommand(SignInterface SignInterface) {
+        this.signInterface = SignInterface;
     }
 
     @Override
@@ -33,7 +30,6 @@ public class setSignCommand implements CommandExecutor {
                     player.sendMessage("/setSign: SERVER MAINTENANCE");
                     return false;
                 } else {
-
                     if (arg0 == null) {
                         player.sendMessage("/setSign: SERVER MAINTENANCE");
                         return false;
@@ -43,15 +39,11 @@ public class setSignCommand implements CommandExecutor {
                             return false;
                         } else {
                             SignObject signObject = SignObject.builder()
-                                    .world(blockLocation.getWorld().getName())
-                                    .x((int) blockLocation.getX())
-                                    .y((int) blockLocation.getY())
-                                    .z((int) blockLocation.getZ())
+                                    .location(blockLocation)
                                     .Server(arg0)
                                     .maintenance(arg1)
                                     .build();
-                            mySQL.writeSignIntoDatabase(signObject.getWorld(), signObject.getX(), signObject.getY(), signObject.getZ(), signObject.getServer(), signObject.maintenance);
-                            mySQL.getSigns();
+                            signInterface.setSign(signObject);
                             player.sendMessage("Sign was created");
                             return true;
                         }
