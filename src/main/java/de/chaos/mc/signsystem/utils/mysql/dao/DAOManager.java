@@ -2,7 +2,7 @@ package de.chaos.mc.signsystem.utils.mysql.dao;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
+import com.j256.ormlite.support.BaseConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
@@ -13,12 +13,12 @@ public  class DAOManager<DaoType, KeyType> {
 
     Dao<DaoType, KeyType> dao = null;
 
-    protected JdbcPooledConnectionSource connectionSource;
+    protected BaseConnectionSource connectionSource;
     protected Logger log = Logger.getLogger(DAOManager.class.getName());
 
     private Class<DaoType> daoType;
 
-    public DAOManager(Class<DaoType> daoType, JdbcPooledConnectionSource connectionSource) {
+    public DAOManager(Class<DaoType> daoType, BaseConnectionSource connectionSource) {
         this.daoType = daoType;
         this.connectionSource = connectionSource;
     }

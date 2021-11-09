@@ -14,7 +14,7 @@ public class SignMemoryRepository implements SignInterface {
 
     public SignMemoryRepository(JdbcPooledConnectionSource connectionSource) {
         this.connectionSource = connectionSource;
-        daoManager = new DAOManager<>(SignDAO.class, connectionSource);
+        this.daoManager = new DAOManager<SignDAO, String>(SignDAO.class, connectionSource);
     }
 
     @Override
@@ -32,7 +32,16 @@ public class SignMemoryRepository implements SignInterface {
     public SignObject getSign(int id) {
         SignObject signObject = null;
         try {
-            signObject = (SignObject) daoManager.getDAO().queryForId(id);
+            SignDAO signDAO = daoManager.getDAO().queryForId(id);
+            signObject = SignObject.builder()
+                    .world(signDAO.getWorld())
+                    .X(signDAO.getX())
+                    .Y(signDAO.getY())
+                    .Z(signDAO.getZ())
+                    .Server(signDAO.getServer())
+                    .maintenance(signDAO.isMaintenance())
+                    .build();
+
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
