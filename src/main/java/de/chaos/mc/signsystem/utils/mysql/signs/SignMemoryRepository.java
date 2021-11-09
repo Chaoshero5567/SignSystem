@@ -20,10 +20,8 @@ public class SignMemoryRepository implements SignInterface {
     @Override
     public SignObject setSign(SignObject signObject) {
         try {
-            daoManager.getDAO().queryBuilder().prepare();
-            daoManager.getDAO().queryBuilder().selectColumns(SignDAO.WORLD_FIELD, SignDAO.X_FIELD, SignDAO.Y_FIELD, SignDAO.Z_FIELD, SignDAO.SERVER_FIELD, SignDAO.MAINTENANCE_FIELD);
-            daoManager.getDAO().queryBuilder().query();
             daoManager.getDAO().create(signObject);
+            daoManager.getDAO().update(signObject);
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -32,7 +30,13 @@ public class SignMemoryRepository implements SignInterface {
 
     @Override
     public SignObject getSign(int id) {
-        return null;
+        SignObject signObject = null;
+        try {
+            signObject = (SignObject) daoManager.getDAO().queryForId(id);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return signObject;
     }
 
     @Override
