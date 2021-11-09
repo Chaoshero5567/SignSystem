@@ -2,6 +2,7 @@ package de.chaos.mc.signsystem.utils;
 
 import de.chaos.mc.signsystem.utils.mysql.signs.SignObject;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -24,8 +25,8 @@ public class UpdateSigns {
             public void run() {
                 for (Long id : signs.keySet()) {
                     SignObject signObject = signs.get(id);
-                    Block block = signObject.getLocation().getBlock();
-                    Sign sign = (Sign) block.getState();
+                    Location location = new Location(Bukkit.getServer().getWorld(signObject.getWorld()), signObject.getX(), signObject.getY(), signObject.getZ());
+                    Sign sign = (Sign) location.getBlock().getState();
                     sign.setLine(0, "---------------");
                     sign.setLine(1, signObject.getServer());
                     if (signObject.maintenance) {

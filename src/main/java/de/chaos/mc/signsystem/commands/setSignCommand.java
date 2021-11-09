@@ -1,5 +1,6 @@
 package de.chaos.mc.signsystem.commands;
 
+import de.chaos.mc.signsystem.utils.mysql.dao.SignDAO;
 import de.chaos.mc.signsystem.utils.mysql.signs.SignInterface;
 import de.chaos.mc.signsystem.utils.mysql.signs.SignObject;
 import org.bukkit.Location;
@@ -39,7 +40,10 @@ public class setSignCommand implements CommandExecutor {
                             return false;
                         } else {
                             SignObject signObject = SignObject.builder()
-                                    .location(blockLocation)
+                                    .world(blockLocation.getWorld().getName())
+                                    .X(block.getX())
+                                    .Z(block.getZ())
+                                    .Y(block.getY())
                                     .Server(arg0)
                                     .maintenance(arg1)
                                     .build();

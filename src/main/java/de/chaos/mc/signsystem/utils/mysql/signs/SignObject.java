@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import org.bukkit.Location;
 
 @Getter
 @AllArgsConstructor
@@ -14,8 +13,10 @@ import org.bukkit.Location;
 @Builder
 @DatabaseTable(daoClass = SignDAO.class)
 public class SignObject {
-    public Long id;
-    public Location location;
+    public String world;
+    public int X;
+    public int Y;
+    public int Z;
     public String Server;
     public boolean maintenance;
 }

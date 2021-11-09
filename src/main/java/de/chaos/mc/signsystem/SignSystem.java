@@ -17,6 +17,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.SQLException;
+
 public final class SignSystem extends JavaPlugin {
     private static SignSystem instance;
     private SQLConfigHandler sqlConfigHandler;
@@ -38,11 +40,18 @@ public final class SignSystem extends JavaPlugin {
 
     public void init(PluginManager pluginManager, JdbcPooledConnectionSource source) {
         source = new JdbcPooledConnectionSource();
-        initVariables(source);
+        sqlConfigHandler = new SQLConfigHandler();
         SQLConfig sqlConfig = sqlConfigHandler.readSQLConfig();
-        source.setUrl("jdbc:mysql://" +  sqlConfig.getHost() + ":" + sqlConfig.getPort());
+        source.setUrl("jdbc:mysql://" +  sqlConfig.getHost() + ":" + sqlConfig.getPort() + "/" + sqlConfig.getDatabase());
         source.setUsername(sqlConfig.getUser());
         source.setPassword(sqlConfig.getPassword());
+        try {
+            source.initialize();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        initVariables(source);
         initListeners(pluginManager);
         initCommands();
     }
@@ -57,7 +66,6 @@ public final class SignSystem extends JavaPlugin {
 
     public void initVariables(JdbcPooledConnectionSource source) {
         instance = this;
-        sqlConfigHandler = new SQLConfigHandler();
         configHandler = new ConfigHandler(sqlConfigHandler);
         signMemoryRepository = new SignMemoryRepository(source);
         updateSigns = new UpdateSigns(this);
