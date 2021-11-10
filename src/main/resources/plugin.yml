@@ -9,3 +9,7 @@ description: A Bungeecord Sign System
 commands:
   setsign:
     -description: /setSign [Server] [maintenance false/true]
+  deleteSign:
+    -description: /deleteSign
+    -aliases:
+        -delSign

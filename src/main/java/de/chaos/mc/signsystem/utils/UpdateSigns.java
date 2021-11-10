@@ -1,20 +1,26 @@
 package de.chaos.mc.signsystem.utils;
 
+import de.chaos.mc.signsystem.SignSystem;
+import de.chaos.mc.signsystem.utils.mysql.signs.MaintenanceSignInterface;
+import de.chaos.mc.signsystem.utils.mysql.signs.NormalSignInterface;
+import de.chaos.mc.signsystem.utils.mysql.signs.SignMemoryRepository;
 import de.chaos.mc.signsystem.utils.mysql.signs.SignObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashMap;
+import java.sql.Time;
+import java.util.concurrent.TimeUnit;
 
 public class UpdateSigns {
-    public HashMap<Long, SignObject> signs = new HashMap<>();
+    private NormalSignInterface signInterface;
+    private MaintenanceSignInterface maintenanceSignInterface;
     public UpdateSigns( Plugin plugin) {
+        this.signInterface = SignSystem.getNormalSignInterface();
+        this.maintenanceSignInterface = SignSystem.getMaintenanceSignInterface();
         startUpdater(plugin);
     }
 
@@ -23,21 +29,26 @@ public class UpdateSigns {
         task = new BukkitRunnable() {
             @Override
             public void run() {
-                for (Long id : signs.keySet()) {
-                    SignObject signObject = signs.get(id);
+                for (int id : SignMemoryRepository.getAllSigns.keySet()) {
+                    SignObject signObject = SignMemoryRepository.getAllSigns.get(id);
                     Location location = new Location(Bukkit.getServer().getWorld(signObject.getWorld()), signObject.getX(), signObject.getY(), signObject.getZ());
-                    Sign sign = (Sign) location.getBlock().getState();
-                    sign.setLine(0, "---------------");
-                    sign.setLine(1, signObject.getServer());
-                    if (signObject.maintenance) {
-                        sign.setLine(2, "Maintenance");
-                    } else {
-                        sign.setLine(2, "Online");
+                    if (location.getBlock().getState() instanceof Sign) {
+                        Sign sign = (Sign) location.getBlock().getState();
+                        if (!signObject.isMaintenance()) {
+                            sign.setLine(0,Replacer.replace(signInterface.getNextLine(1), signObject));
+                            sign.setLine(1,Replacer.replace(signInterface.getNextLine(2), signObject));
+                            sign.setLine(2,Replacer.replace(signInterface.getNextLine(3), signObject));
+                            sign.setLine(3,Replacer.replace(signInterface.getNextLine(4), signObject));
+                        }
+                        if (signObject.isMaintenance()) {
+                            sign.setLine(0,Replacer.replace(maintenanceSignInterface.getNextLine(1), signObject));
+                            sign.setLine(1,Replacer.replace(maintenanceSignInterface.getNextLine(2), signObject));
+                            sign.setLine(2,Replacer.replace(maintenanceSignInterface.getNextLine(3), signObject));
+                            sign.setLine(3,Replacer.replace(maintenanceSignInterface.getNextLine(4), signObject));
+                        }
                     }
-                    sign.setLine(3, "---------------");
-                    sign.update(true);
                 }
             }
-        }.runTaskTimer(plugin, 5, 1);
+        }.runTaskTimer(plugin, 0, 20*1);
     }
 }

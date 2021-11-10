@@ -39,5 +39,5 @@ public class SignDAO {
     public String Server;
 
     @DatabaseField(columnName = MAINTENANCE_FIELD)
-    public boolean maintenance;
+    public String maintenance;
 }

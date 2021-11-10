@@ -10,6 +10,7 @@ import lombok.Getter;
 @Data
 @Builder
 public class SignObject {
+    public int id;
     public String world;
     public int X;
     public int Y;

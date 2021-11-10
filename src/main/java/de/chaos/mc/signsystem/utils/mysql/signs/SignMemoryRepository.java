@@ -6,22 +6,34 @@ import de.chaos.mc.signsystem.utils.mysql.dao.SignDAO;
 import org.bukkit.Location;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
 
-//TODO mach das FERTIG DU IDIOT
 public class SignMemoryRepository implements SignInterface {
     public JdbcPooledConnectionSource connectionSource;
-    public DAOManager daoManager;
+    public DAOManager<SignDAO, Integer> daoManager;
+    public static HashMap<Integer, SignObject> getAllSigns = new HashMap<>();
 
     public SignMemoryRepository(JdbcPooledConnectionSource connectionSource) {
         this.connectionSource = connectionSource;
-        this.daoManager = new DAOManager<SignDAO, String>(SignDAO.class, connectionSource);
+        this.daoManager = new DAOManager<SignDAO, Integer>(SignDAO.class, connectionSource);
+        loadAllSigns();
     }
 
     @Override
     public SignObject setSign(SignObject signObject) {
         try {
-            daoManager.getDAO().create(signObject);
-            daoManager.getDAO().update(signObject);
+            SignDAO dao = new SignDAO();
+            dao.setWorld(signObject.getWorld());
+            dao.setX(signObject.getX());
+            dao.setY(signObject.getY());
+            dao.setZ(signObject.getZ());
+            dao.setServer(signObject.getServer());
+            dao.setMaintenance(String.valueOf(signObject.isMaintenance()));
+            daoManager.getDAO().createOrUpdate(dao);
+            int id  = getAllSigns.size();
+            getAllSigns.put(++id, signObject);
+
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -34,14 +46,14 @@ public class SignMemoryRepository implements SignInterface {
         try {
             SignDAO signDAO = daoManager.getDAO().queryForId(id);
             signObject = SignObject.builder()
+                    .id(signDAO.getId())
                     .world(signDAO.getWorld())
                     .X(signDAO.getX())
                     .Y(signDAO.getY())
                     .Z(signDAO.getZ())
                     .Server(signDAO.getServer())
-                    .maintenance(signDAO.isMaintenance())
+                    .maintenance(Boolean.parseBoolean(String.valueOf(signObject.isMaintenance())))
                     .build();
-
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -50,6 +62,59 @@ public class SignMemoryRepository implements SignInterface {
 
     @Override
     public SignObject getSign(Location location) {
-        return null;
+        SignObject signObject = null;
+        try {
+            List<SignDAO> signDAOList= daoManager.getDAO().queryBuilder().where()
+                    .eq(SignDAO.WORLD_FIELD, location.getWorld().getName()).and()
+                    .eq(SignDAO.X_FIELD, location.getX()).and()
+                    .eq(SignDAO.Y_FIELD, location.getY()).and()
+                    .eq(SignDAO.Z_FIELD, location.getZ()).query();
+            SignDAO signDAO = signDAOList.get(1);
+            signObject = SignObject.builder()
+                    .id(signDAO.getId())
+                    .world(signDAO.getWorld())
+                    .X(signDAO.getX())
+                    .Y(signDAO.getY())
+                    .Z(signDAO.getZ())
+                    .Server(signDAO.getServer())
+                    .maintenance(Boolean.parseBoolean(signDAO.getMaintenance()))
+                    .build();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return signObject;
     }
+
+    @Override
+    public SignObject delSign(int id) {
+        SignObject signObject = null;
+        try {
+            signObject = getSign(id);
+            daoManager.getDAO().deleteById(id);
+            getAllSigns.remove(id);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return signObject;
+    }
+
+    public void loadAllSigns() {
+        try {
+            int id = 0;
+            for (SignDAO signDAO : daoManager.getDAO().queryForAll()) {
+                SignObject signObject = SignObject.builder()
+                        .world(signDAO.getWorld())
+                        .X(signDAO.getX())
+                        .Y(signDAO.getY())
+                        .Z(signDAO.getZ())
+                        .Server(signDAO.getServer())
+                        .maintenance(Boolean.parseBoolean(signDAO.getMaintenance()))
+                        .build();
+                getAllSigns.put(++id, signObject);
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
 }
