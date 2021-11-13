@@ -5,13 +5,12 @@ import de.chaos.mc.signsystem.utils.mysql.dao.DAOManager;
 import de.chaos.mc.signsystem.utils.mysql.dao.NormalSignDAO;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 
+// TODO NullPointer fixen
 public class NormalSignLineMemoryRepository implements NormalSignInterface {
     JdbcPooledConnectionSource source;
     public DAOManager<NormalSignDAO, Integer> daoManager;
-    public static HashMap<Integer, NormalSignDAO> getAllSigns = new HashMap<>();
-    int topId = 0;
+    Integer topId = 1;
     public NormalSignLineMemoryRepository(JdbcPooledConnectionSource connectionSource) {
         this.source = connectionSource;
         this.daoManager = new DAOManager<NormalSignDAO, Integer>(NormalSignDAO.class, source);
@@ -27,53 +26,37 @@ public class NormalSignLineMemoryRepository implements NormalSignInterface {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
-        getAllLines();
     }
 
     @Override
-    public String getNextLine(int line) {
-        String string = null;
-        if (getAllSigns.size() == topId) {
-            topId = 0;
-            topId++;
-            if (line == 1) {
-                string = getAllSigns.get(topId).getLine1();
-            }
-            if (line == 2) {
-                string = getAllSigns.get(topId).getLine2();
-            }
-            if (line == 3) {
-                string = getAllSigns.get(topId).getLine3();
-            }
-            if (line == 4) {
-                string = getAllSigns.get(topId).getLine4();
-            }
-        } else {
-            topId++;
-            if (line == 1) {
-                string = getAllSigns.get(topId).getLine1();
-            }
-            if (line == 2) {
-                string = getAllSigns.get(topId).getLine2();
-            }
-            if (line == 3) {
-                string = getAllSigns.get(topId).getLine3();
-            }
-            if (line == 4) {
-                string = getAllSigns.get(topId).getLine4();
-            }
-        }
-        return string;
-    }
-
-    public void getAllLines() {
-    int id = 0;
+    public SignLinesObject getNextSign() {
         try {
-            for (NormalSignDAO normalSignDAO : daoManager.getDAO().queryForAll()) {
-                getAllSigns.put(normalSignDAO.getID(), normalSignDAO);
+            if (topId.equals(daoManager.getDAO().queryForAll().size())) {
+                topId = 1;
+            } else {
+                topId++;
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+        try {
+            NormalSignDAO normalSignDAO = daoManager.getDAO().queryForId(topId);
+            SignLinesObject signLinesObject = SignLinesObject.builder()
+                    .line0(normalSignDAO.getLine1())
+                    .line1(normalSignDAO.getLine2())
+                    .line2(normalSignDAO.getLine3())
+                    .line3(normalSignDAO.getLine4())
+                    .build();
+            return signLinesObject;
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+            return SignLinesObject.builder()
+                    .line0(DefaultNormalSign.Line1)
+                    .line1(DefaultNormalSign.Line2)
+                    .line2(DefaultNormalSign.Line3)
+                    .line3(DefaultNormalSign.Line4)
+                    .build();
     }
+
 }

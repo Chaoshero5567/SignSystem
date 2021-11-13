@@ -32,7 +32,6 @@ public final class SignSystem extends JavaPlugin {
     public static NormalSignInterface normalSignInterface;
     public MaintenanceSignLineMemoryRepository maintenanceSignLineMemoryRepository;
     public static MaintenanceSignInterface maintenanceSignInterface;
-    private BaseConnectionSource baseConnectionSource;
 
     @Override
     public void onEnable() {

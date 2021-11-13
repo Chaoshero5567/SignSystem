@@ -5,18 +5,17 @@ import de.chaos.mc.signsystem.utils.mysql.dao.DAOManager;
 import de.chaos.mc.signsystem.utils.mysql.dao.MaintenanceSignDAO;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 
+// TODO NullPointer fixen
 public class MaintenanceSignLineMemoryRepository implements MaintenanceSignInterface {
     JdbcPooledConnectionSource source;
     public DAOManager<MaintenanceSignDAO, Integer> daoManager;
-    public static HashMap<Integer, MaintenanceSignDAO> getAllSigns = new HashMap<>();
-    int topId = 0;
+    Integer topId = 0;
     public MaintenanceSignLineMemoryRepository(JdbcPooledConnectionSource connectionSource) {
         this.source = connectionSource;
         this.daoManager = new DAOManager<MaintenanceSignDAO, Integer>(MaintenanceSignDAO.class, source);
         try {
-            if (!daoManager.getDAO().isTableExists()) {
+            if (daoManager.getDAO().queryForId(1) == null) {
                 MaintenanceSignDAO maintenanceSignDAO = new MaintenanceSignDAO();
                 maintenanceSignDAO.Line1 = MaintenanceNormalSign.Line1;
                 maintenanceSignDAO.Line2 = MaintenanceNormalSign.Line2;
@@ -27,53 +26,37 @@ public class MaintenanceSignLineMemoryRepository implements MaintenanceSignInter
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
-        getAllLines();
     }
 
     @Override
-    public String getNextLine(int line) {
-        String string = null;
-        if (getAllSigns.size() == topId) {
-            topId = 0;
-            topId++;
-            if (line == 1) {
-                string = getAllSigns.get(topId).getLine1();
-            }
-            if (line == 2) {
-                string = getAllSigns.get(topId).getLine2();
-            }
-            if (line == 3) {
-                string = getAllSigns.get(topId).getLine3();
-            }
-            if (line == 4) {
-                string = getAllSigns.get(topId).getLine4();
-            }
-        } else {
-            topId++;
-            if (line == 1) {
-                string = getAllSigns.get(topId).getLine1();
-            }
-            if (line == 2) {
-                string = getAllSigns.get(topId).getLine2();
-            }
-            if (line == 3) {
-                string = getAllSigns.get(topId).getLine3();
-            }
-            if (line == 4) {
-                string = getAllSigns.get(topId).getLine4();
-            }
-        }
-        return string;
-    }
-
-    public void getAllLines() {
-        int id = 0;
+    public SignLinesObject getNextSign() {
         try {
-            for (MaintenanceSignDAO maintenanceSignDAO : daoManager.getDAO().queryForAll()) {
-                getAllSigns.put(maintenanceSignDAO.getID(), maintenanceSignDAO);
+            if (topId == daoManager.getDAO().queryForAll().size()) {
+                topId = 1;
+            } else {
+                topId++;
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+        try {
+            MaintenanceSignDAO signDAO = daoManager.getDAO().queryForId(topId);
+            SignLinesObject signLinesObject = SignLinesObject.builder()
+                    .line0(signDAO.getLine1())
+                    .line1(signDAO.getLine2())
+                    .line2(signDAO.getLine3())
+                    .line3(signDAO.getLine4())
+                    .build();
+            return signLinesObject;
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return SignLinesObject.builder()
+                .line0(MaintenanceNormalSign.Line1)
+                .line1(MaintenanceNormalSign.Line2)
+                .line2(MaintenanceNormalSign.Line3)
+                .line3(MaintenanceNormalSign.Line4)
+                .build();
     }
 }

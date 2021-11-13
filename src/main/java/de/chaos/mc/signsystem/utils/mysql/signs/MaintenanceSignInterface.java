@@ -1,5 +1,5 @@
 package de.chaos.mc.signsystem.utils.mysql.signs;
 
 public interface MaintenanceSignInterface {
-    public String getNextLine(int id);
+    public SignLinesObject getNextSign();
 }

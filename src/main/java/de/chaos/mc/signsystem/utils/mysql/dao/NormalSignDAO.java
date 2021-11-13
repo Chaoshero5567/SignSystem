@@ -2,13 +2,13 @@ package de.chaos.mc.signsystem.utils.mysql.dao;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Getter
+@Setter
 @DatabaseTable(tableName = "SignLines")
 public class NormalSignDAO {
     public static final String ID_FIELD = "ID";

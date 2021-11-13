@@ -69,7 +69,7 @@ public class SignMemoryRepository implements SignInterface {
                     .eq(SignDAO.X_FIELD, location.getX()).and()
                     .eq(SignDAO.Y_FIELD, location.getY()).and()
                     .eq(SignDAO.Z_FIELD, location.getZ()).query();
-            SignDAO signDAO = signDAOList.get(1);
+            SignDAO signDAO = signDAOList.get(0);
             signObject = SignObject.builder()
                     .id(signDAO.getId())
                     .world(signDAO.getWorld())

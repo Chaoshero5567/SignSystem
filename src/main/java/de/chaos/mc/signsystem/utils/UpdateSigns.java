@@ -1,19 +1,13 @@
 package de.chaos.mc.signsystem.utils;
 
 import de.chaos.mc.signsystem.SignSystem;
-import de.chaos.mc.signsystem.utils.mysql.signs.MaintenanceSignInterface;
-import de.chaos.mc.signsystem.utils.mysql.signs.NormalSignInterface;
-import de.chaos.mc.signsystem.utils.mysql.signs.SignMemoryRepository;
-import de.chaos.mc.signsystem.utils.mysql.signs.SignObject;
+import de.chaos.mc.signsystem.utils.mysql.signs.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.sql.Time;
-import java.util.concurrent.TimeUnit;
 
 public class UpdateSigns {
     private NormalSignInterface signInterface;
@@ -34,17 +28,20 @@ public class UpdateSigns {
                     Location location = new Location(Bukkit.getServer().getWorld(signObject.getWorld()), signObject.getX(), signObject.getY(), signObject.getZ());
                     if (location.getBlock().getState() instanceof Sign) {
                         Sign sign = (Sign) location.getBlock().getState();
+                        SignLinesObject signLinesObject = signInterface.getNextSign();
                         if (!signObject.isMaintenance()) {
-                            sign.setLine(0,Replacer.replace(signInterface.getNextLine(1), signObject));
-                            sign.setLine(1,Replacer.replace(signInterface.getNextLine(2), signObject));
-                            sign.setLine(2,Replacer.replace(signInterface.getNextLine(3), signObject));
-                            sign.setLine(3,Replacer.replace(signInterface.getNextLine(4), signObject));
+                            sign.setLine(0, Replacer.replace(signLinesObject.getLine0(), signObject));
+                            sign.setLine(1, Replacer.replace(signLinesObject.getLine1(), signObject));
+                            sign.setLine(2, Replacer.replace(signLinesObject.getLine2(), signObject));
+                            sign.setLine(3, Replacer.replace(signLinesObject.getLine3(), signObject));
+                            sign.update();
                         }
                         if (signObject.isMaintenance()) {
-                            sign.setLine(0,Replacer.replace(maintenanceSignInterface.getNextLine(1), signObject));
-                            sign.setLine(1,Replacer.replace(maintenanceSignInterface.getNextLine(2), signObject));
-                            sign.setLine(2,Replacer.replace(maintenanceSignInterface.getNextLine(3), signObject));
-                            sign.setLine(3,Replacer.replace(maintenanceSignInterface.getNextLine(4), signObject));
+                            sign.setLine(0, Replacer.replace(signLinesObject.getLine0(), signObject));
+                            sign.setLine(1, Replacer.replace(signLinesObject.getLine1(), signObject));
+                            sign.setLine(2, Replacer.replace(signLinesObject.getLine2(), signObject));
+                            sign.setLine(3, Replacer.replace(signLinesObject.getLine3(), signObject));
+                            sign.update();
                         }
                     }
                 }
